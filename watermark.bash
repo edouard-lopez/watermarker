@@ -11,19 +11,27 @@ shopt -s globstar
 
 originalDir="original"
 outputDir="output"
+wmTextFile="watermark-text.png"
 wmImage="${1:-./watermark.png}"
-wmText="${2:-$(cat ./watermark.txt)}"
-wmConvertArgs=(
-  -size 140x80 xc:none -fill #80808080
-  -font Arial -pointsize 20
-  -draw "gravity NorthEast fill black  text 0,12 '$wmText' fill white  text 1,11 '$wmText'"
-  miff:-
-)
-wmCompositeArgs=(
-  -dissolve 40% -gravity NorthWest
-  -geometry +10+10
-)
+wmText="${1:-$(cat ./watermark.txt)}"
+  wmTxtMargin="+0%+5%" # wm offset to border of original image
+  fz=20 # font size
 
+function create_wm_text() {
+  let textLength="${#wmText}"
+  let textHeight=$(($fz*15/10)) # text-box height
+  let textWidth=$(($textLength*12)) # text-box width
+
+  wmConvertArgs=(
+    -size ${textWidth}x${textHeight} xc:none
+    -fill '#80808080'
+    -font DejaVu-Sans-Book -pointsize "$fz"
+    -gravity Center
+    -draw "fill black text 0,2 '$wmText' fill white  text 1,1 '$wmText'"
+  )
+
+  convert "${wmConvertArgs[@]}" "$wmTextFile"
+}
   # convert "${wmConvertArgs[@]}" |
   convert -size 300x50 xc:none -font Arial -pointsize 20 -gravity center -draw "fill white text 1,1 'Tequipment.net' text 0,0 'Tequipment.net' fill black text -1,-1 'Tequipment.net'" | composite "${wmCompositeArgs[@]}" "$wmImage" "$i" "$o"
   for i in "$originalDir"/**;
@@ -35,3 +43,4 @@ wmCompositeArgs=(
     [[ ! -d "$od" ]] && mkdir -p "$od"
     o="$od/$(basename "$i")"
   done
+create_wm_text
