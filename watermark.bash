@@ -7,6 +7,8 @@
 #
 # @author: Édouard Lopez <dev+project@edouard-lopez.com>
 
+shopt -s globstar
+
 originalDir="original"
 outputDir="output"
 wmImage="${1:-./watermark.png}"
@@ -22,10 +24,14 @@ wmCompositeArgs=(
   -geometry +10+10
 )
 
-for i in "$originalDir"/*;
-do
-  printf "processing: %s\n" "$i"
-  o="$outputDir/$(basename "$i")"
   # convert "${wmConvertArgs[@]}" |
   convert -size 300x50 xc:none -font Arial -pointsize 20 -gravity center -draw "fill white text 1,1 'Tequipment.net' text 0,0 'Tequipment.net' fill black text -1,-1 'Tequipment.net'" | composite "${wmCompositeArgs[@]}" "$wmImage" "$i" "$o"
-done
+  for i in "$originalDir"/**;
+  do
+    [[ -d "$i" ]] && continue # skip directory
+
+    printf "processing: %s\n" "$i"
+    od="$outputDir/$(dirname "${i#$originalDir/}")"
+    [[ ! -d "$od" ]] && mkdir -p "$od"
+    o="$od/$(basename "$i")"
+  done
