@@ -12,7 +12,9 @@ shopt -s globstar
 originalDir="original"
 outputDir="output"
 wmTextFile="watermark-text.png"
-wmImage="${1:-./watermark.png}"
+wmImage="${2:-./watermark.png}"
+  wmImgRatio=.15 # wm ratio to original image
+  wmImgMargin="+10%+10%" # wm offset to border of original image
 wmText="${1:-$(cat ./watermark.txt)}"
   wmTxtMargin="+0%+5%" # wm offset to border of original image
   fz=20 # font size
@@ -42,5 +44,25 @@ function create_wm_text() {
     od="$outputDir/$(dirname "${i#$originalDir/}")"
     [[ ! -d "$od" ]] && mkdir -p "$od"
     o="$od/$(basename "$i")"
+    # Retrieve size of the image and divide the lenght by 2
+    let width="$(identify -format "%[fx:w]" "$i")"
+    let height="$(identify -format "%[fx:h]" "$i")"
+    let newWidth="$(identify -format "%[fx:round(w*$wmImgRatio)]" "$i")"
+    let newHeight="$(identify -format "%[fx:round(h*$wmImgRatio)]" "$i")"
+    let size=$(($newWidth>$newHeight?$newWidth:$newHeight))
+    wmArgImg=(
+        "$wmImage"
+        -dissolve 40%
+        -gravity NorthWest
+        -geometry "$size" # wm size
+        -geometry "$wmImgMargin" # wm offset
+    )
+    wmArgTxt=(
+        "$wmTextFile"
+        -dissolve 40%
+        -gravity SouthWest
+        # -geometry "$size" # wm size
+        -geometry "$wmTxtMargin" # wm offset
+    )
   done
 create_wm_text
