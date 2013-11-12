@@ -19,7 +19,7 @@ If you want to add watermark text, you can either:
 bash ./watermark.bash "© under creative-common sample"
 ```
 
-## Installion
+## Installation
 
     git clone git@github.com:edouard-lopez/watermarker.git
 
