@@ -21,7 +21,7 @@ bash ./watermark.bash "© under creative-common sample"
 
 ## Installion
 
-    git clone
+    git clone git@github.com:edouard-lopez/watermarker.git
 
 ## Usage
 1. **Place** your original photos in the `original/` directory (using symlink is ok) ;
